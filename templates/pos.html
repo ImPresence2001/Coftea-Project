@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-inner">
+      <div class="page-header">
+        <h4 class="page-title">Point of Sale</h4>
+        <ul class="breadcrumbs">
+          <li class="nav-home">
+            <a href="#">
+              <i class="fas fa-desktop"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="page-category">
+        <div class="card">
+            <div class="card-header">
+        <form method="post">
+        {% csrf_token %}
+        <div class="row">
+              <div class="col-md-4">
+                <div class="card-title">Categories</div>
+                <ul class="list-group">
+                    {% for category in categories %}
+                    <a class="list-group-item" onclick="showProductsByCategory({{ category.category_id }})">
+                        {{ category.category_name }}
+                    </a>
+                    {% endfor %}
+                </ul>
+            </div>
+        <!-- Products Section -->
+        <div class="col-md-4">
+            <div class="card-title">Products</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body">
+                    <!-- Product rows will be populated here based on selected category -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Checkout Section -->
+        <div class="col-md-4">
+            <div class="card-title">Checkout</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="checkout-table-body">
+                    <!-- Selected products for checkout will appear here -->
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Process Order</button>
+                <button type="button" class="btn btn-danger" onclick="promptVoid()">Void All</button>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+    </div>
+        </form>
+
+        <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Recent Orders</div>
+                    <div class="col-md-12 row">
+                    <div class="col-md-6">
+                        <form class="navbar-left navbar-form nav-search mr-md-3" action="">
+                        <div class="input-group">
+                            <input type="text" placeholder="Search ..." class="form-control" />
+                            <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="la la-search search-icon"></i>
+                            </span>
+                            </div>
+                        </div>
+                        </form>
+                    </div>
+                
+                    
+                    <div class="col-md-6">
+                        <div class="pull-right">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                  <table class="table table-striped mt-3">
+                    <thead>
+                      <tr>
+                        <th scope="col">Order ID</th>
+                        <th scope="col">Cashier</th>
+                        <th scope="col">Total Ammount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
+                      </tr>
+                    </thead>
+                    
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                          <td>{{ order.order_id }}</td>
+                          <td>{{ order.user.username }}</td>
+                          <td>₱{{ order.total_price }}</td>
+                          <td>{{ order.transaction_date }}</td>
+                          <td>{{ order.status }}</td>
+                          <td>
+                            <a href="" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
+                        </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center">
+                              <p class="text-sm font-weight-bold mb-0">No Records Found</p>
+                            </td>
+                          </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  
+                  {% include 'includes/pagination.html' %}
+                </div>
+              </div>
+            </div>
+          </div>
+<script>
+    // Store products by category as a JavaScript object
+    const productsByCategory = {
+        {% for category in categories %}
+        {{ category.category_id }}: [
+            {% for product in products %}
+                {% if product.category.category_id == category.category_id %}
+                {
+                    id: {{ product.product_id }},
+                    name: "{{ product.product_name }}",
+                    price: {{ product.price }},
+                    quantity: 0
+                },
+                {% endif %}
+            {% endfor %}
+        ],
+        {% endfor %}
+    };
+
+    const checkoutItems = {};  // Store items added to checkout by product ID
+
+    // Show products by selected category
+    function showProductsByCategory(categoryId) {
+        const productTableBody = document.getElementById('product-table-body');
+        productTableBody.innerHTML = '';  // Clear previous products
+
+        const products = productsByCategory[categoryId] || [];
+        products.forEach(product => {
+            const row = document.createElement('tr');
+            row.style.cursor = "pointer";
+            row.onclick = function () { addToCheckout(product); };  // Make row clickable
+
+            row.innerHTML = `
+                <td>${product.name}</td>
+                <td>$${product.price.toFixed(2)}</td>
+            `;
+            productTableBody.appendChild(row);
+        });
+    }
+
+    // Add product to checkout table
+    function addToCheckout(product) {
+        if (!checkoutItems[product.id]) {
+            checkoutItems[product.id] = { ...product, quantity: 1 };
+        } else {
+            checkoutItems[product.id].quantity += 1;  // Increment quantity if already in checkout
+        }
+        renderCheckoutTable();
+    }
+
+    // Render the checkout table based on selected items
+    function renderCheckoutTable() {
+        const checkoutTableBody = document.getElementById('checkout-table-body');
+        checkoutTableBody.innerHTML = '';  // Clear previous checkout items
+
+        for (const productId in checkoutItems) {
+            const item = checkoutItems[productId];
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="voidProduct(${item.id})">Void</button></td>
+            `;
+            checkoutTableBody.appendChild(row);
+        }
+    }
+
+    // Void a specific product from the checkout table
+    function voidProduct(productId) {
+        const password = prompt("Enter password to void:");
+        const correctPassword = "1234";  // Replace with secure password management in production
+
+        if (password === correctPassword) {
+            delete checkoutItems[productId];  // Remove product from checkout items
+            renderCheckoutTable();
+        } else {
+            alert("Incorrect password!");
+        }
+    }
+
+    // Prompt for void password and clear checkout if password is correct
+    function promptVoid() {
+        const password = prompt("Enter password to void:");
+        const correctPassword = "1234";  // Replace with secure password management in production
+
+        if (password === correctPassword) {
+            voidAllProducts();
+        } else {
+            alert("Incorrect password!");
+        }
+    }
+
+    // Void the current order by clearing the checkout table
+    function voidAllProducts() {
+        for (const productId in checkoutItems) {
+            delete checkoutItems[productId];  // Clear all items
+        }
+        document.getElementById('checkout-table-body').innerHTML = '';  // Clear checkout table in UI
+    }
+</script>
+
+
+
+      </div>
+    </div>
+  </div>
+{% endblock %}

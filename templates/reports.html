@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Reports</h1>
+    <h3>Sales Summary</h3>
+    <ul class="list-group">
+        <li class="list-group-item">Daily Sales: ${{ daily_sales }}</li>
+        <li class="list-group-item">Weekly Sales: ${{ weekly_sales }}</li>
+        <li class="list-group-item">Monthly Sales: ${{ monthly_sales }}</li>
+    </ul>
+</div>
+{% endblock %}
