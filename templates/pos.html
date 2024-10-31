@@ -128,7 +128,7 @@
                           <td>{{ order.transaction_date }}</td>
                           <td>{{ order.status }}</td>
                           <td>
-                            <a href="" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
+                            <a href="{% url 'request_invoice' order.order_id %}" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
                         </td>
                         </tr>
                         {% empty %}
@@ -292,27 +292,77 @@
 
     // Void a specific product from the checkout table
     function voidProduct(productId) {
-        const password = prompt("Enter password to void:");
-        const correctPassword = "1234";  // Replace with secure password management in production
+        swal({
+            title: 'Enter Password to Void',
+            html: '',
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Enter password",
+                    type: "password",  // Use password type for security
+                    id: "input-field",
+                    className: "form-control"
+                },
+            },
+            buttons: {
+                cancel: {
+                    visible: true,
+                    className: 'btn btn-danger'
+                },
+                confirm: {
+                    className: 'btn btn-success'
+                }
+            },
+        }).then((value) => {
+            const enteredPassword = document.getElementById('input-field').value;  // Get the value from the input field
+            const correctPassword = "1234";  // Replace with secure password management in production
 
-        if (password === correctPassword) {
-            delete checkoutItems[productId];  // Remove product from checkout items
-            renderCheckoutTable();
-        } else {
-            alert("Incorrect password!");
-        }
+            if (enteredPassword === correctPassword) {
+                delete checkoutItems[productId];  // Remove product from checkout items
+                renderCheckoutTable();
+                updateTotalPrice();
+                swal("Success", "Product voided successfully!", "success");  // Show success message
+            } else {
+                swal("Error", "Incorrect password!", "error");  // Show error message for incorrect password
+            }
+        });
     }
 
     // Prompt for void password and clear checkout if password is correct
     function promptVoid() {
-        const password = prompt("Enter password to void:");
-        const correctPassword = "1234";  // Replace with secure password management in production
+        swal({
+            title: 'Enter Password to Void All',
+            html: '',
+            content: {
+                element: "input",
+                attributes: {
+                    placeholder: "Enter password",
+                    type: "password",  // Use password type for security
+                    id: "input-field",
+                    className: "form-control"
+                },
+            },
+            buttons: {
+                cancel: {
+                    visible: true,
+                    className: 'btn btn-danger'
+                },
+                confirm: {
+                    className: 'btn btn-success'
+                }
+            },
+        }).then((value) => {
+            const enteredPassword = document.getElementById('input-field').value;  // Get the value from the input field
+            const correctPassword = "1234";  // Replace with secure password management in production
 
-        if (password === correctPassword) {
-            voidAllProducts();
-        } else {
-            alert("Incorrect password!");
-        }
+            if (enteredPassword === correctPassword) {
+                voidAllProducts();
+                updateTotalPrice();
+                swal("Success", "All products voided successfully!", "success");  // Show success message
+            } else {
+                swal("Error", "Incorrect password!", "error");  // Show error message for incorrect password
+            }
+        });
     }
 
     // Void the current order by clearing the checkout table
@@ -322,6 +372,7 @@
         }
         document.getElementById('checkout-table-body').innerHTML = '';  // Clear checkout table in UI
     }
+
     </script>
 
 

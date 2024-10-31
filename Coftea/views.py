@@ -1,5 +1,9 @@
-from django.shortcuts import render, redirect
-from django.db.models import Sum, Count
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from django.db.models import Sum
 from django.views.generic.list import ListView
 from .models import Category, Product, Inventory, OrderTransaction, OrderItem
 from django.utils import timezone
@@ -14,6 +18,16 @@ class HomePageView(ListView):
     model = Category
     context_object_name = 'home'
     template_name = "home.html"
+
+def request_invoice(request, order_id):
+    order = get_object_or_404(OrderTransaction, pk=order_id)
+    order_items = OrderItem.objects.filter(order=order)
+
+    # Render the invoice template as an HTML page ready for printing
+    return render(request, 'invoice_template.html', {
+        'order': order,
+        'order_items': order_items
+    })
 
 def dashboard(request):
     recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]

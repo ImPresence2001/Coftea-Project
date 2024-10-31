@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style>
+        /* General styles */
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        
+        /* Print styles */
+        @media print {
+            body * { visibility: hidden; }
+            .printable, .printable * { visibility: visible; }
+            .printable { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+        
+        /* Table styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        .total { font-weight: bold; }
+    </style>
+    <script>
+        // Automatically print the invoice when the window loads
+        window.onload = function() {
+            window.print(); // Open the print dialog
+            setTimeout(function() {
+                window.close(); // Close the tab after a delay (adjust as needed)
+            }, 1000); // Delay in milliseconds (1 second here)
+        };
+    </script>
+</head>
+<body>
+
+<div class="container printable">
+    <h1>Invoice for Order #{{ order.order_id }}</h1>
+    <p>Date: {{ order.transaction_date }}</p>
+    <p>Customer: {{ order.user.username }}</p>
+    <p>Status: {{ order.status }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+            <tr>
+                <td>{{ item.product.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="total">Total: ${{ order.total_price }}</p>
+</div>
+
+</body>
+</html>
