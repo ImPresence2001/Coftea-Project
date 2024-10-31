@@ -6,6 +6,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 import json
 
 @method_decorator(login_required, name='dispatch')
@@ -34,17 +35,16 @@ def pos(request):
     products = Product.objects.all()
     if request.method == "POST":
         checkout_items = request.POST.get('checkout_items', '[]')  # Get the checkout items JSON
+        apply_discount = request.POST.get('apply_discount')  # Get the discount checkbox value
         try:
             items = json.loads(checkout_items)  # Parse the JSON
         except json.JSONDecodeError:
-            # Handle the case where JSON decoding fails
-            return redirect('pos')  # Replace with appropriate error handling
+            return redirect('pos')  # Handle JSON decoding errors
 
         if not items:
-            # Handle empty checkout scenario
-            return redirect('pos')
+            return redirect('pos')  # Handle empty checkout scenario
 
-        total_price = 0
+        total_price = Decimal(0)  # Use Decimal for precise monetary calculations
         order = OrderTransaction(user=request.user, total_price=total_price)
         order.save()  # Save the order first to get order ID
 
@@ -52,22 +52,25 @@ def pos(request):
             product_id = item.get('id')
             quantity = item.get('quantity')
 
-            # Ensure product_id and quantity are valid
             if product_id is None or quantity is None:
                 continue  # Skip if invalid item
 
-            # Change from `Product.objects.get(id=product_id)` to `Product.objects.get(product_id=product_id)`
             try:
                 product = Product.objects.get(product_id=product_id)  # Fetch product by product_id
             except Product.DoesNotExist:
                 continue  # Skip if product does not exist
 
-            price = product.price  # Get price from product directly
+            price = Decimal(product.price)  # Ensure price is a Decimal
             total_price += price * quantity  # Calculate total price
 
             # Create OrderItem
             order_item = OrderItem(order=order, product=product, quantity=quantity, price=price)
             order_item.save()
+
+        # Apply discount if the checkbox was checked
+        if apply_discount == 'on':  # Check if the checkbox was checked
+            discount_amount = total_price * Decimal(0.20)  # Calculate 20% discount as Decimal
+            total_price -= discount_amount  # Reduce total price by discount
 
         # Update total price of the order
         order.total_price = total_price

@@ -67,9 +67,17 @@
                 <button type="submit" class="btn btn-primary" onclick="submitCheckoutItems()">Process Order</button>
                 <button type="button" class="btn btn-danger" onclick="promptVoid()">Void All</button>
             </div>
-        </div>
+            <div class="mt-3">
+                <label for="apply-discount">Apply Discount:</label>
+                <input type="checkbox" name="apply_discount" id="apply_discount" onchange="updateTotalPrice()">
+            </div>
+            <div class="mt-3">
+                <strong>Total Price: </strong> <span id="total-price">₱0.00</span>
+            </div>
         </div>
     </div>
+</form>
+</div>
 </div>
     </div>
         <div class="row">
@@ -132,17 +140,40 @@
                       {% endfor %}
                     </tbody>
                   </table>
-                  
-                  {% include 'includes/pagination.html' %}
+                    {% include 'includes/pagination.html' %}
                 </div>
               </div>
             </div>
           </div>
 <script>
+    function updateTotalPrice() {
+                let total = 0;
+                for (const productId in checkoutItems) {
+                    const item = checkoutItems[productId];
+                    total += item.price * item.quantity;
+                }
+
+                const discountCheckbox = document.getElementById('apply_discount');
+                let totalAfterDiscount = total;
+
+                // Apply 20% discount if checkbox is checked
+                if (discountCheckbox.checked) {
+                    totalAfterDiscount *= 0.8;  // Reduce total by 20%
+                }
+
+                document.getElementById('total-price').innerText = `₱${totalAfterDiscount.toFixed(2)}`;
+    }
+
     function submitCheckoutItems() {
-    const checkoutItemsInput = document.getElementById('checkout_items');
-    checkoutItemsInput.value = JSON.stringify(Object.values(checkoutItems)); // Ensure we stringify the array of items
-}
+        const checkoutItemsInput = document.getElementById('checkout_items');
+        checkoutItemsInput.value = JSON.stringify(Object.values(checkoutItems));
+        
+        // Debugging: log checkbox state
+        const discountCheckbox = document.getElementById('apply_discount');
+        console.log('Checkbox checked:', discountCheckbox.checked);  // Log checkbox state
+
+        updateTotalPrice();  // Ensure total price is updated before submission
+    }
     // Store products by category as a JavaScript object
     const productsByCategory = {
         {% for category in categories %}
@@ -221,6 +252,7 @@
     }
     
     renderCheckoutTable();  // Update the checkout table
+    updateTotalPrice();
 }
 
     // Render the checkout table based on selected items
@@ -241,6 +273,22 @@
             checkoutTableBody.appendChild(row);
         }
     }
+
+    // Update item quantity
+    function updateQuantity(productId, newQuantity) {
+                if (checkoutItems[productId]) {
+                    checkoutItems[productId].quantity = parseInt(newQuantity);
+                    renderCheckoutTable(); // Re-render checkout table
+                    updateTotalPrice(); // Update total price after changing quantity
+                }
+            }
+
+            // Remove item from checkout
+            function removeFromCheckout(productId) {
+                delete checkoutItems[productId];
+                renderCheckoutTable(); // Re-render checkout table
+                updateTotalPrice(); // Update total price after removal
+            }
 
     // Void a specific product from the checkout table
     function voidProduct(productId) {
