@@ -38,6 +38,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Price</th>
+                        <th>Stock Status</th>
                     </tr>
                 </thead>
                 <tbody id="product-table-body">
@@ -71,7 +72,6 @@
 </div>
     </div>
         </form>
-
         <div class="row">
             <div class="col-md-12">
               <div class="card">
@@ -149,7 +149,8 @@
                     id: {{ product.product_id }},
                     name: "{{ product.product_name }}",
                     price: {{ product.price }},
-                    quantity: 0
+                    quantity: {{ product.quantity }},
+                    stock_status: "{{ product.stock_status }}"  // Include stock_status
                 },
                 {% endif %}
             {% endfor %}
@@ -172,7 +173,8 @@
 
             row.innerHTML = `
                 <td>${product.name}</td>
-                <td>$${product.price.toFixed(2)}</td>
+                <td>₱${product.price.toFixed(2)}</td>
+                <td>${ product.stock_status }</td>
             `;
             productTableBody.appendChild(row);
         });
@@ -180,13 +182,42 @@
 
     // Add product to checkout table
     function addToCheckout(product) {
-        if (!checkoutItems[product.id]) {
-            checkoutItems[product.id] = { ...product, quantity: 1 };
-        } else {
-            checkoutItems[product.id].quantity += 1;  // Increment quantity if already in checkout
-        }
-        renderCheckoutTable();
+    // Check if the product is out of stock
+    if (product.quantity <= 0) {
+        // Show the alert
+        swal("Sorry!", "No stock for this Product.", {
+            icon : "error",
+            buttons: {
+                confirm: {
+                    className : 'btn btn-danger'
+                }
+            },
+        });
+        return;  // Exit the function
     }
+
+    if (checkoutItems[product.id] && checkoutItems[product.id].quantity >= product.quantity) {
+        // Show the alert for exceeding quantity
+        swal("Sorry!", "You have reach the maximum Product.", {
+            icon : "error",
+            buttons: {
+                confirm: {
+                    className : 'btn btn-danger'
+                }
+            },
+        });
+        return;  // Exit the function
+    }
+    
+    // If the product is in stock, add it to checkout
+    if (!checkoutItems[product.id]) {
+        checkoutItems[product.id] = { ...product, quantity: 1 };
+    } else {
+        checkoutItems[product.id].quantity += 1;  // Increment quantity if already in checkout
+    }
+    
+    renderCheckoutTable();  // Update the checkout table
+}
 
     // Render the checkout table based on selected items
     function renderCheckoutTable() {

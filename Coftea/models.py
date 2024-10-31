@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User  # Using Django's built-in User model for admin and cashier roles
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Category model
 class Category(models.Model):
@@ -14,11 +16,25 @@ class Category(models.Model):
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     product_name = models.CharField(max_length=100)
+    quantity = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
 
     def __str__(self):
         return self.product_name
+    
+    @property
+    def stock_status(self):
+        if self.quantity == 0:
+            return 'No stock'
+        elif self.quantity < 30:
+            return 'Low stock'
+        else:
+            return 'High product'
+    
+    def update_quantity(self, new_quantity):
+        self.quantity = new_quantity
+        self.save()
 
 
 # Inventory model
@@ -29,6 +45,12 @@ class Inventory(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} - Quantity: {self.quantity}"
+    
+    def save(self, *args, **kwargs):
+        # Call the original save method
+        super().save(*args, **kwargs)
+        # Update the corresponding product quantity
+        self.product.update_quantity(self.quantity)
 
 
 # OrderTransaction model
@@ -40,9 +62,9 @@ class OrderTransaction(models.Model):
     status = models.CharField(
         max_length=20,
         choices=[
-            ('pending', 'Pending'),
-            ('completed', 'Completed'),
-            ('cancelled', 'Cancelled')
+            ('Pending', 'Pending'),
+            ('Completed', 'Completed'),
+            ('Cancelled', 'Cancelled')
         ],
         default='Pending'
     )
@@ -61,3 +83,16 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.product_name} in Order {self.order.order_id}"
+
+# Signal to adjust inventory after an OrderItem is saved
+@receiver(post_save, sender=OrderItem)
+def update_inventory(sender, instance, created, **kwargs):
+    if created:  # Only adjust inventory if the OrderItem is newly created
+        inventory_item = Inventory.objects.get(product=instance.product)
+
+        if inventory_item.quantity >= instance.quantity:
+            inventory_item.quantity -= instance.quantity
+            inventory_item.save()  # Save the updated inventory
+        else:
+            # Handle insufficient stock scenario
+            raise ValueError(f"Insufficient stock for {instance.product.product_name}")
