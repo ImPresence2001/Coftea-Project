@@ -15,13 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from Coftea import views
 from django.urls import path, re_path
+from Coftea.views import HomePageView
+from Coftea import views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.HomePageView.as_view(), name='home'),
+    path('', HomePageView.as_view(), name='home'),
     path('pos/', views.pos, name='pos'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('reports/', views.reports, name='reports'),
