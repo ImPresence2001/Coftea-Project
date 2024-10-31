@@ -12,20 +12,19 @@ class HomePageView(ListView):
     model = Category
     context_object_name = 'dashboard'
     template_name = "dashboard.html"
-
-def dashboard(request):
-    recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]
-    total_sales = OrderTransaction.objects.aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
-    total_revenue = total_sales  # Assuming total_sales as total revenue for this example
-    total_expenses = 0  # This can be calculated or fetched from another source if applicable
-    
-    context = {
-        'recent_orders': recent_orders,
-        'total_sales': total_sales,
-        'total_revenue': total_revenue,
-        'total_expenses': total_expenses,
-    }
-    return render(request, 'dashboard.html', context)
+    def dashboard(request):
+        recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]
+        total_sales = OrderTransaction.objects.aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
+        total_revenue = total_sales  # Assuming total_sales as total revenue for this example
+        total_expenses = 0  # This can be calculated or fetched from another source if applicable
+        
+        context = {
+            'recent_orders': recent_orders,
+            'total_sales': total_sales,
+            'total_revenue': total_revenue,
+            'total_expenses': total_expenses,
+        }
+        return render(request, 'dashboard.html', context)
 
 def pos(request):
     recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]
