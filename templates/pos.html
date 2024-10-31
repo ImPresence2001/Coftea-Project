@@ -17,9 +17,10 @@
       <div class="page-category">
         <div class="card">
             <div class="card-header">
-        <form method="post">
+    <form method="post">
         {% csrf_token %}
         <div class="row">
+            <input type="hidden" name="checkout_items" id="checkout_items" value=''>
               <div class="col-md-4">
                 <div class="card-title">Categories</div>
                 <ul class="list-group">
@@ -63,7 +64,7 @@
                 </tbody>
             </table>
             <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary">Process Order</button>
+                <button type="submit" class="btn btn-primary" onclick="submitCheckoutItems()">Process Order</button>
                 <button type="button" class="btn btn-danger" onclick="promptVoid()">Void All</button>
             </div>
         </div>
@@ -71,7 +72,6 @@
     </div>
 </div>
     </div>
-        </form>
         <div class="row">
             <div class="col-md-12">
               <div class="card">
@@ -139,6 +139,10 @@
             </div>
           </div>
 <script>
+    function submitCheckoutItems() {
+    const checkoutItemsInput = document.getElementById('checkout_items');
+    checkoutItemsInput.value = JSON.stringify(Object.values(checkoutItems)); // Ensure we stringify the array of items
+}
     // Store products by category as a JavaScript object
     const productsByCategory = {
         {% for category in categories %}
@@ -198,7 +202,7 @@
 
     if (checkoutItems[product.id] && checkoutItems[product.id].quantity >= product.quantity) {
         // Show the alert for exceeding quantity
-        swal("Sorry!", "You have reach the maximum Product.", {
+        swal("Sorry!", "You have reached the maximum Product.", {
             icon : "error",
             buttons: {
                 confirm: {
@@ -270,7 +274,7 @@
         }
         document.getElementById('checkout-table-body').innerHTML = '';  // Clear checkout table in UI
     }
-</script>
+    </script>
 
 
 
