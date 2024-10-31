@@ -5,7 +5,7 @@ from .models import Category, Product, Inventory, OrderTransaction
 from django.utils import timezone
 from datetime import timedelta
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 
 @method_decorator(login_required, name='dispatch')
 class HomePageView(ListView):

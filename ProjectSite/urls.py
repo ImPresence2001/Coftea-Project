@@ -21,7 +21,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.dashboard, name='dashboard'),
+    path('', views.HomePageView.as_view(), name='dashboard'),
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('pos/', views.pos, name='pos'),
     path('reports/', views.reports, name='reports'),
     path('inventory/', views.inventory, name='inventory'),
