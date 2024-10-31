@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'login/login.css' %}">
+    <title>Coftea | Login</title>
+    <link rel="icon" href="{% static 'img/kaiadmin/favicon.ico' %}" type="image/x-icon" />
+</head>
+
+<body>
+
+    <div class="container" id="container">
+        <div class="form-container sign-in">
+            <form role="post" method="post">
+                {% csrf_token %}
+                <h1>Sign In</h1>
+                <label for="inputEmail" class="sr-only">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Username" required autofocus />
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Password" required />
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            </form>
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-right">
+                    <h1>Coftea Cafe</h1>
+                    <h5>Puerto Princesa City</h5>
+                    <p>Tag line...</p>
+                    <p class="mt-5 mb-3 text-muted">&copy; Coftea Cafe | 2024</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'login/login.js' %}"></script>
+</body>
+
+</html>

@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from Coftea import views
-from django.urls import path
+from django.urls import path, re_path
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +26,6 @@ urlpatterns = [
     path('reports/', views.reports, name='reports'),
     path('inventory/', views.inventory, name='inventory'),
     path('order-history/', views.order_history, name='order_history'),
+    re_path(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    re_path(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
 ]

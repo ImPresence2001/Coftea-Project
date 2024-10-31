@@ -3,8 +3,10 @@ from django.db.models import Sum, Count
 from .models import Category, Product, Inventory, OrderTransaction
 from django.utils import timezone
 from datetime import timedelta
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required, user_passes_test
 
-# Dashboard View
+#@method_decorator(login_required)
 def dashboard(request):
     recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]
     total_sales = OrderTransaction.objects.aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
@@ -19,8 +21,6 @@ def dashboard(request):
     }
     return render(request, 'dashboard.html', context)
 
-
-# POS View
 def pos(request):
     recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]
     categories = Category.objects.all()
