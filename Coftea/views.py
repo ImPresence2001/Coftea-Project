@@ -1,12 +1,18 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Sum, Count
+from django.views.generic.list import ListView
 from .models import Category, Product, Inventory, OrderTransaction
 from django.utils import timezone
 from datetime import timedelta
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-#@method_decorator(login_required)
+@method_decorator(login_required, name='dispatch')
+class HomePageView(ListView):
+    model = Category
+    context_object_name = 'dashboard'
+    template_name = "dashboard.html"
+
 def dashboard(request):
     recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]
     total_sales = OrderTransaction.objects.aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
