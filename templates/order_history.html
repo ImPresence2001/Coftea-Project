@@ -2,16 +2,19 @@
 
 {% block content %}
 <title>Coftea | Transaction History</title>
-<div class="container mt-4">
+<div class="container mt-4 table-responsive">
     <h1>Order History</h1>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Order ID</th>
-                <th>User</th>
+                <th>Employee ID</th>
                 <th>Date</th>
                 <th>Total Price</th>
                 <th>Details</th>
+                <th>Payment</th>
+                <th>Order Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -20,13 +23,18 @@
                 <td>{{ order.order_id }}</td>
                 <td>{{ order.user.username }}</td>
                 <td>{{ order.transaction_date }}</td>
-                <td>${{ order.total_price }}</td>
+                <td>₱{{ order.total_price }}</td>
                 <td>
                     <ul>
                         {% for item in order.items.all %}
-                        <li>{{ item.quantity }} x {{ item.product.product_name }} @ ${{ item.price }}</li>
+                        <li>{{ item.quantity }} x {{ item.product.product_name }} @ ₱{{ item.price }}</li>
                         {% endfor %}
                     </ul>
+                </td>
+                <td>{{ order.paymentMethod }}</td>
+                <td>{{ order.status }}</td>
+                <td>
+                    <a href="{% url 'request_invoice' order.order_id %}" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
                 </td>
             </tr>
             {% endfor %}

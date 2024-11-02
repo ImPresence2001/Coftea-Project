@@ -64,8 +64,8 @@
                 </tbody>
             </table>
             <div class="form-group">
-                <label for="exampleFormControlSelect1">Payment Method</label>
-                <select class="form-control" id="exampleFormControlSelect1" name="paymentMethod">
+                <label for="payment">Payment Method</label>
+                <select class="form-control" id="payment" name="paymentMethod">
                     {% for key, value in payment_choices %}
                         <option value="{{ key }}">{{ value }}</option>
                     {% endfor %}
@@ -116,11 +116,11 @@
                 </div>
                 <div class="card-body">
                     
-                  <table class="table table-striped mt-3">
+                  <table class="table table-striped mt-3 table-responsive">
                     <thead>
                       <tr>
                         <th scope="col">Order ID</th>
-                        <th scope="col">Cashier</th>
+                        <th scope="col">Employee ID</th>
                         <th scope="col">Total Ammount</th>
                         <th scope="col">Date</th>
                         <th scope="col">Payment</th>
@@ -137,10 +137,25 @@
                           <td>₱{{ order.total_price }}</td>
                           <td>{{ order.transaction_date }}</td>
                           <td>{{ order.paymentMethod }}</td>
-                          <td>{{ order.status }}</td>
+                          <td>
+                            {% if order.status == "Pending" %}
+                                <form method="post" action="{% url 'pos' order.order_id %}">
+                                    {% csrf_token %}
+                                    <select class="form-control btn btn-info btn-rounded" name="status" onchange="this.form.submit()">
+                                        <option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option>
+                                        <option value="Completed" {% if order.status == "Completed" %}selected{% endif %}>Completed</option>
+                                        <option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </form>
+                            {% else %}
+                            <span class="{% if order.status == 'Completed' %}form-control btn btn-success btn-rounded{% elif order.status == 'Cancelled' %}form-control btn btn-danger btn-rounded{% else %}text-warning{% endif %}">
+                                {{ order.status }}
+                            </span>
+                            {% endif %}
+                        </td>
                           <td>
                             <a href="{% url 'request_invoice' order.order_id %}" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
-                        </td>
+                          </td>
                         </tr>
                         {% empty %}
                         <tr>
@@ -278,7 +293,7 @@
             row.innerHTML = `
                 <td>${item.name}</td>
                 <td>${item.quantity}</td>
-                <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                <td>₱${(item.price * item.quantity).toFixed(2)}</td>
                 <td><button type="button" class="btn btn-danger btn-sm" onclick="voidProduct(${item.id})">Void</button></td>
             `;
             checkoutTableBody.appendChild(row);
