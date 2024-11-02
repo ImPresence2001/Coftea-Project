@@ -59,6 +59,17 @@ class OrderTransaction(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    paymentMethod= models.CharField(
+        max_length=20,
+        choices=[
+            ('Cash', 'Cash'),
+            ('Credit Card', 'Credit Card'),
+            ('Debit Card', 'Debit Card'),
+            ('Gcash', 'G-Cash Wallet'),
+            ('Paymaya', 'Maya Wallet')
+        ],
+        default='Cash'
+    )
     status = models.CharField(
         max_length=20,
         choices=[
@@ -70,7 +81,7 @@ class OrderTransaction(models.Model):
     )
 
     def __str__(self):
-        return f"Order {self.order_id} by {self.user.username} on {self.transaction_date} - {self.status}"
+        return f"Order {self.order_id} by {self.user.username} on {self.transaction_date} Payment: {self.paymentMethod} - {self.status}"
 
 
 # OrderItem model

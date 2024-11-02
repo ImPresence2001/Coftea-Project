@@ -47,9 +47,11 @@ def pos(request):
     recent_orders = OrderTransaction.objects.order_by('-transaction_date')[:5]
     categories = Category.objects.all()
     products = Product.objects.all()
+    payment_choices = OrderTransaction._meta.get_field('paymentMethod').choices
     if request.method == "POST":
         checkout_items = request.POST.get('checkout_items', '[]')  # Get the checkout items JSON
         apply_discount = request.POST.get('apply_discount')  # Get the discount checkbox value
+        payment_method = request.POST.get('paymentMethod')
         try:
             items = json.loads(checkout_items)  # Parse the JSON
         except json.JSONDecodeError:
@@ -59,7 +61,7 @@ def pos(request):
             return redirect('pos')  # Handle empty checkout scenario
 
         total_price = Decimal(0)  # Use Decimal for precise monetary calculations
-        order = OrderTransaction(user=request.user, total_price=total_price)
+        order = OrderTransaction(user=request.user, total_price=total_price, paymentMethod=payment_method)
         order.save()  # Save the order first to get order ID
 
         for item in items:
@@ -97,6 +99,7 @@ def pos(request):
         'recent_orders': recent_orders,
         'categories': categories,
         'products': products,
+        'payment_choices': payment_choices,
     }
     return render(request, 'pos.html', context)
 

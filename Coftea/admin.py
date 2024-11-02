@@ -33,7 +33,7 @@ class OrderItemInline(admin.TabularInline):
 # OrderTransaction Admin
 @admin.register(OrderTransaction)
 class OrderTransactionAdmin(admin.ModelAdmin):
-    list_display = ('order_id', 'transaction_date', 'total_price', 'user')
+    list_display = ('order_id', 'transaction_date', 'total_price', 'paymentMethod', 'user')
     search_fields = ('user__username', 'order_id')
     list_filter = ('transaction_date',)
     inlines = [OrderItemInline]  # Adding OrderItem inline to display items within each order

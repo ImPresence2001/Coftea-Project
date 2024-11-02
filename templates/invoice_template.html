@@ -35,8 +35,8 @@
 <div class="container printable">
     <h1>Invoice for Order #{{ order.order_id }}</h1>
     <p>Date: {{ order.transaction_date }}</p>
-    <p>Customer: {{ order.user.username }}</p>
-    <p>Status: {{ order.status }}</p>
+    <p>CashierID: {{ order.user.username }}</p>
+    <p>Payment: {{ order.paymentMethod }}</p>
 
     <table>
         <thead>
@@ -51,13 +51,13 @@
             <tr>
                 <td>{{ item.product.product_name }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>${{ item.price }}</td>
+                <td>₱{{ item.price }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <p class="total">Total: ${{ order.total_price }}</p>
+    <p class="total">Total: ₱{{ order.total_price }}</p>
 </div>
 
 </body>
