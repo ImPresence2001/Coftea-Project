@@ -1,8 +1,4 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from reportlab.pdfgen import canvas
-from io import BytesIO
 from django.db.models import Sum
 from django.views.generic.list import ListView
 from .models import Category, Product, Inventory, OrderTransaction, OrderItem

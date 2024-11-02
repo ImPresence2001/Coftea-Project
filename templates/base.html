@@ -1,4 +1,5 @@
 {% load static %}
+{% load auth_extras %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -53,46 +54,70 @@
 				<li class="nav-section">
 					<h4 class="text-section">Main</h4>
 				  </li>
-              <li class="nav-item">
-                <a href="{% url 'dashboard' %}">
+          {% if user|has_group:"employee" %}
+          <li class="nav-item">
+              <a href="{% url 'pos' %}">
+                  <i class="fas fa-desktop"></i>
+                  <p>Point of Sale</p>
+              </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'order_history' %}">
+                <i class="fas fa-th-list"></i>
+                <p>Transaction History</p>
+            </a>
+        </li>
+        <li class="nav-section">
+            <h4 class="text-section">Settings</h4>
+        </li>
+        <li class="nav-item">
+            <a href="">
+                <i class="fas fa-key"></i>
+                <p>Change Password</p>
+            </a>
+        </li>
+          {% elif user|has_group:"admin" %}
+          <li class="nav-item">
+              <a href="{% url 'dashboard' %}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
-                </a>
-			        </li>
-			  <li class="nav-item">
-				<a href="{% url 'pos' %}">
-					<i class="fas fa-desktop"></i>
-					<p>Point of Sale</p>
-				  </a>
-			  </li>
-			  <li class="nav-item">
-				<a href="{% url 'reports' %}">
-					<i class="far fa-chart-bar"></i>
-					<p>Reports</p>
-				</a>
-			  </li>
-			  <li class="nav-item">
-				<a href="{% url 'inventory' %}">
-					<i class="fas fa-table"></i>
-					<p>Inventory</p>
-				</a>
-			  </li>
-			  <li class="nav-item">
-				<a href="{% url 'order_history' %}">
-					<i class="fas fa-th-list"></i>
-					<p>Transaction History</p>
-				</a>
-              </li>
-			  <li class="nav-section">
-				<h4 class="text-section">Settings</h4>
-			  </li>
-              <li class="nav-item">
-                <a href="">
-                  <i class="fas fa-key"></i>
-                  <p>Change Password</p>
-                </a>
-              </li>
-            </ul>
+              </a>
+          </li>
+          <li class="nav-item">
+              <a href="{% url 'pos' %}">
+                  <i class="fas fa-desktop"></i>
+                  <p>Point of Sale</p>
+              </a>
+          </li>
+          <li class="nav-item">
+              <a href="{% url 'reports' %}">
+                  <i class="far fa-chart-bar"></i>
+                  <p>Reports</p>
+              </a>
+          </li>
+          <li class="nav-item">
+              <a href="{% url 'inventory' %}">
+                  <i class="fas fa-table"></i>
+                  <p>Inventory</p>
+              </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'order_history' %}">
+                <i class="fas fa-th-list"></i>
+                <p>Transaction History</p>
+            </a>
+        </li>
+        <li class="nav-section">
+            <h4 class="text-section">Settings</h4>
+        </li>
+        <li class="nav-item">
+            <a href="">
+                <i class="fas fa-key"></i>
+                <p>Change Password</p>
+            </a>
+        </li>
+      {% endif %}
+          </ul>
           </div>
         </div>
       </div>
