@@ -2,58 +2,104 @@
 
 {% block content %}
 <title>Coftea | Transaction History</title>
-<div class="container mt-4 table-responsive">
-    <h1>Order History</h1>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Employee ID</th>
-                <th>Date</th>
-                <th>Total Price</th>
-                <th>Details</th>
-                <th>Payment</th>
-                <th>Order Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.order_id }}</td>
-                <td>{{ order.user.username }}</td>
-                <td>{{ order.transaction_date }}</td>
-                <td>₱{{ order.total_price }}</td>
-                <td>
-                    <ul>
-                        {% for item in order.items.all %}
-                        <li>{{ item.quantity }} x {{ item.product.product_name }} @ ₱{{ item.price }}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
-                <td>{{ order.paymentMethod }}</td>
-                <td>
-                    {% if order.status == "Pending" %}
-                        <form method="post" action="{% url 'pos' order.order_id %}">
-                            {% csrf_token %}
-                            <select class="form-control btn btn-info btn-rounded" name="status" onchange="this.form.submit()">
-                                <option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option>
-                                <option value="Completed" {% if order.status == "Completed" %}selected{% endif %}>Completed</option>
-                                <option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
-                            </select>
-                        </form>
-                    {% else %}
-                    <span class="{% if order.status == 'Completed' %}form-control btn btn-success btn-rounded{% elif order.status == 'Cancelled' %}form-control btn btn-danger btn-rounded{% else %}text-warning{% endif %}">
-                        {{ order.status }}
-                    </span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'request_invoice' order.order_id %}" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container">
+    <div class="page-inner">
+      <div class="page-header">
+        <h4 class="page-title">Transaction History</h4>
+        <ul class="breadcrumbs">
+          <li class="nav-home">
+            <a href="#">
+              <i class="fas fa-th-list"></i>
+            </a>
+          </li>
+        </ul>
+        </div>
+        <div class="page-category">
+            <div class="row">
+                <div class="col-md-12">
+                  <div class="card">
+                    <div class="card-header">
+                        <div class="col-md-12 row">
+                        <div class="col-md-6">
+                            <form class="navbar-left navbar-form nav-search mr-md-3" action="">
+                            <div class="input-group">
+                                <input type="text" placeholder="Search ..." class="form-control" />
+                                <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="la la-search search-icon"></i>
+                                </span>
+                                </div>
+                            </div>
+                            </form>
+                        </div>
+                    
+                        
+                        <div class="col-md-6">
+                            <div class="pull-right">
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        
+                      <table class="table table-striped mt-3 table-responsive">
+                        <thead>
+                          <tr>
+                            <th>Order ID</th>
+                            <th>Employee ID</th>
+                            <th>Date</th>
+                            <th>Total Ammount</th>
+                            <th>Details</th>
+                            <th>Payment</th>
+                            <th>Order Status</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ order.order_id }}</td>
+                                <td>{{ order.user.username }}</td>
+                                <td>{{ order.transaction_date }}</td>
+                                <td>₱{{ order.total_price }}</td>
+                                <td>
+                                    <ul>
+                                        {% for item in order.items.all %}
+                                        <li>{{ item.quantity }} x {{ item.product.product_name }} @ ₱{{ item.price }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>{{ order.paymentMethod }}</td>
+                                <td>
+                                    {% if order.status == "Pending" %}
+                                        <form method="post" action="{% url 'pos' order.order_id %}">
+                                            {% csrf_token %}
+                                            <select class="form-control btn btn-info btn-rounded" name="status" onchange="this.form.submit()">
+                                                <option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option>
+                                                <option value="Completed" {% if order.status == "Completed" %}selected{% endif %}>Completed</option>
+                                                <option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+                                            </select>
+                                        </form>
+                                    {% else %}
+                                    <span class="{% if order.status == 'Completed' %}form-control btn btn-success btn-rounded{% elif order.status == 'Cancelled' %}form-control btn btn-danger btn-rounded{% else %}text-warning{% endif %}">
+                                        {{ order.status }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'request_invoice' order.order_id %}" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                      </table>
+                        {% include 'includes/pagination.html' %}
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

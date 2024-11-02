@@ -8,7 +8,7 @@
         <h4 class="page-title">Dashboard</h4>
         <ul class="breadcrumbs">
           <li class="nav-home">
-            <a href="#">
+            <a href="{% url 'dashboard' %}">
               <i class="fas fa-home"></i>
             </a>
           </li>
@@ -128,10 +128,11 @@
                     <thead>
                       <tr>
                         <th scope="col">Order ID</th>
-                        <th scope="col">Cashier</th>
+                        <th scope="col">Employee ID</th>
                         <th scope="col">Total Ammount</th>
                         <th scope="col">Date</th>
-                        <th scope="col">Status</th>
+                        <th scope="col">Payment</th>
+                        <th scope="col">Order Status</th>
                         <th scope="col">Action</th>
                       </tr>
                     </thead>
@@ -143,13 +144,33 @@
                           <td>{{ order.user.username }}</td>
                           <td>₱{{ order.total_price }}</td>
                           <td>{{ order.transaction_date }}</td>
-                          <td>{{ order.status }}</td>
+                          <td>{{ order.paymentMethod }}</td>
                           <td>
-                            <a href="" class="btn btn-primary btn-rounded" target="_blank">Request Invoice</a>
+                            {% if order.status == "Pending" %}
+                                <form method="post" action="{% url 'pos' order.order_id %}">
+                                    {% csrf_token %}
+                                    <select class="form-control btn btn-info btn-rounded" name="status" onchange="this.form.submit()">
+                                        <option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option>
+                                        <option value="Completed" {% if order.status == "Completed" %}selected{% endif %}>Completed</option>
+                                        <option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </form>
+                            {% else %}
+                            <span class="{% if order.status == 'Completed' %}form-control btn btn-success btn-rounded{% elif order.status == 'Cancelled' %}form-control btn btn-danger btn-rounded{% else %}text-warning{% endif %}">
+                                {{ order.status }}
+                            </span>
+                            {% endif %}
                         </td>
+                          <td>
+                            <a href="{% url 'request_invoice' order.order_id %}" class="btn btn-black btn-rounded" target="_blank">Request Invoice</a>
+                          </td>
                         </tr>
                         {% empty %}
                         <tr>
+                            <td colspan="6" style="text-align: center">
+                              <p class="text-sm font-weight-bold mb-0">No Records Found</p>
+                            </td>
+                          </tr>
                       {% endfor %}
                     </tbody>
                   </table>
